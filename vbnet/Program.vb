@@ -129,17 +129,21 @@ Public NotInheritable Class EndpointPe
     Private Async Function GetAsync(ruta As String) As Task(Of JsonNode)
         Dim intento As Integer = 1
         Do
-            Dim respuesta As HttpResponseMessage
+            Dim respuesta As HttpResponseMessage = Nothing
+            Dim errorRed As Exception = Nothing
             Try
                 respuesta = Await _http.GetAsync(ruta)
             Catch e As Exception When TypeOf e Is HttpRequestException OrElse TypeOf e Is TaskCanceledException
+                errorRed = e ' en VB no se puede usar Await dentro de Catch: se reintenta fuera
+            End Try
+            If errorRed IsNot Nothing Then
                 If intento < Reintentos Then
                     Await Task.Delay(TimeSpan.FromSeconds(1 << (intento - 1)))
                     intento += 1
                     Continue Do
                 End If
-                Throw New EndpointException(0, "red", $"No se pudo conectar con la API: {e.Message}")
-            End Try
+                Throw New EndpointException(0, "red", $"No se pudo conectar con la API: {errorRed.Message}")
+            End If
 
             Using respuesta
                 Dim status As Integer = CInt(respuesta.StatusCode)

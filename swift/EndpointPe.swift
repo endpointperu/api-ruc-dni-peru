@@ -141,8 +141,10 @@ final class EndpointPe {
             session.dataTask(with: peticion) { datos, respuesta, error in
                 if let error {
                     continuacion.resume(throwing: error)
+                } else if let datos, let respuesta {
+                    continuacion.resume(returning: (datos, respuesta))
                 } else {
-                    continuacion.resume(returning: (datos ?? Data(), respuesta ?? URLResponse()))
+                    continuacion.resume(throwing: URLError(.badServerResponse))
                 }
             }.resume()
         }
