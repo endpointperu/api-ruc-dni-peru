@@ -58,7 +58,7 @@ El padrón de SUNAT se actualiza todos los días. Todas las consultas cuestan lo
 
 1. **Crea tu cuenta gratis** en [app.endpoint.pe/registro](https://app.endpoint.pe/registro). Incluye 150 consultas al mes que se renuevan solas, sin tarjeta.
 2. **Genera una API key** en [API keys](https://app.endpoint.pe/panel/api-keys). Tiene la forma `ep_live_` + 40 caracteres y se muestra una sola vez.
-3. **Haz tu primera consulta** (reemplaza `ep_live_...` por tu clave):
+3. **Haz tus primeras consultas** (reemplaza `ep_live_...` por tu clave). Consulta RUC:
 
 ```bash
 curl https://api.endpoint.pe/v1/ruc/20131312955 \
@@ -101,6 +101,37 @@ curl https://api.endpoint.pe/v1/ruc/20131312955 \
   }
 }
 ```
+
+Consulta DNI, con la misma forma (datos de ejemplo):
+
+```bash
+curl https://api.endpoint.pe/v1/dni/45871236 \
+  -H "Authorization: Bearer ep_live_..."
+```
+
+```json
+{
+  "success": true,
+  "message": "Consulta exitosa",
+  "data": {
+    "dni": "45871236",
+    "digito_verificador": "6",
+    "nombres": "MARÍA ELENA",
+    "apellido_paterno": "QUISPE",
+    "apellido_materno": "HUAMÁN",
+    "nombre_completo": "MARÍA ELENA QUISPE HUAMÁN",
+    "ruc": "10458712366"
+  },
+  "meta": {
+    "fuente": "RENIEC",
+    "consultado_en": "2026-10-12T07:40:12Z",
+    "creditos_cobrados": 1,
+    "creditos_disponibles": 14620
+  }
+}
+```
+
+El tipo de cambio, el ubigeo y las demás consultas responden con el mismo envoltorio; cada una está descrita en su [página de la documentación](https://endpoint.pe/docs).
 
 ¿Quieres verla funcionar antes de registrarte? En la portada de [endpoint.pe](https://endpoint.pe/#prueba) puedes consultar un RUC o un DNI en vivo. Y desde el panel, el [Playground](https://app.endpoint.pe/panel/playground) te muestra la respuesta, las cabeceras y el `curl` equivalente de cualquier consulta.
 

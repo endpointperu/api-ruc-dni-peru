@@ -32,7 +32,7 @@ Dim api As New EndpointPe() ' lee ENDPOINT_API_KEY; también acepta New Endpoint
 Try
     Dim ficha = Await api.RucAsync("20131312955")
     Console.WriteLine($"{ficha("razon_social")} · {ficha("estado")} · {ficha("condicion")}")
-Catch e As EndpointException When e.Error = "no_encontrado"
+Catch e As EndpointException When e.[Error] = "no_encontrado"
     Console.WriteLine("RUC no inscrito")
 End Try
 
@@ -40,7 +40,7 @@ Dim tc = Await api.TipoCambioAsync()
 Console.WriteLine($"{tc("fecha")} compra {tc("compra")} venta {tc("venta")}")
 ```
 
-Los errores (404, 422, 402…) llegan como `EndpointException` con `Status`, `Error`, `Mensaje` y `Detalles`. Los errores de red y los 5xx se reintentan hasta tres veces con espera creciente.
+Los errores (404, 422, 402…) llegan como `EndpointException` con `Status`, `[Error]`, `Mensaje` y `Detalles`. Los errores de red y los 5xx se reintentan hasta tres veces con espera creciente.
 
 ## .NET Framework 4.x (VB.NET clásico)
 

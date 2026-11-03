@@ -102,7 +102,7 @@ final class EndpointPe {
             let datos: Data
             let respuesta: URLResponse
             do {
-                (datos, respuesta) = try await session.data(for: peticion)
+                (datos, respuesta) = try await enviar(peticion)
             } catch {
                 if intento < Self.reintentos {
                     try await Task.sleep(nanoseconds: UInt64(1 << (intento - 1)) * 1_000_000_000)
@@ -117,7 +117,7 @@ final class EndpointPe {
                 try await Task.sleep(nanoseconds: UInt64(1 << (intento - 1)) * 1_000_000_000)
                 continue
             }
-            if let restantes = http?.value(forHTTPHeaderField: "X-Credits-Remaining"),
+            if let restantes = http?.allHeaderFields.first(where: { "\($0.key)".lowercased() == "x-credits-remaining" })?.value as? String,
                let numero = Int(restantes.trimmingCharacters(in: .whitespaces)) {
                 creditosDisponibles = numero
             }
@@ -133,6 +133,19 @@ final class EndpointPe {
             return data
         }
         fatalError("inalcanzable")
+    }
+
+    /// Equivalente a `session.data(for:)`, disponible también en Linux (FoundationNetworking).
+    private func enviar(_ peticion: URLRequest) async throws -> (Data, URLResponse) {
+        try await withCheckedThrowingContinuation { continuacion in
+            session.dataTask(with: peticion) { datos, respuesta, error in
+                if let error {
+                    continuacion.resume(throwing: error)
+                } else {
+                    continuacion.resume(returning: (datos ?? Data(), respuesta ?? URLResponse()))
+                }
+            }.resume()
+        }
     }
 
     private func codificar(_ valor: String) -> String {

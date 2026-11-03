@@ -34,14 +34,14 @@ Public NotInheritable Class EndpointException
     Inherits Exception
 
     Public ReadOnly Property Status As Integer
-    Public ReadOnly Property Error As String
+    Public ReadOnly Property [Error] As String
     Public ReadOnly Property Mensaje As String
     Public ReadOnly Property Detalles As IReadOnlyDictionary(Of String, String)
 
     Public Sub New(status As Integer, [error] As String, mensaje As String, Optional detalles As IReadOnlyDictionary(Of String, String) = Nothing)
         MyBase.New($"HTTP {status} · {[error]}: {mensaje}")
         Me.Status = status
-        Me.Error = [error]
+        Me.[Error] = [error]
         Me.Mensaje = mensaje
         Me.Detalles = If(detalles, New Dictionary(Of String, String)())
     End Sub
@@ -248,7 +248,7 @@ Crea la tuya gratis en https://app.endpoint.pe/panel/api-keys"
             End If
             Return 0
         Catch e As EndpointException
-            Console.Error.WriteLine($"Error HTTP {e.Status} ({e.Error}): {e.Mensaje}")
+            Console.Error.WriteLine($"Error HTTP {e.Status} ({e.[Error]}): {e.Mensaje}")
             For Each par In e.Detalles
                 Console.Error.WriteLine($"  {par.Key}: {par.Value}")
             Next
