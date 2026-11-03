@@ -1,0 +1,6 @@
+{
+  "name": "endpoint-pe-ejemplo-typescript",
+  "private": true,
+  "type": "module",
+  "description": "Ejemplo de consulta RUC, DNI, tipo de cambio y ubigeo con la API de endpoint.pe"
+}

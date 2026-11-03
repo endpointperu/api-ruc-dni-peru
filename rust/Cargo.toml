@@ -1,0 +1,11 @@
+[package]
+name = "consulta"
+version = "0.1.0"
+edition = "2021"
+description = "Ejemplo de consulta RUC, DNI, tipo de cambio y ubigeo con la API de endpoint.pe"
+license = "MIT"
+publish = false
+
+[dependencies]
+ureq = { version = "2", features = ["json"] }
+serde_json = "1"

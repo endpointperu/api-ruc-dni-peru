@@ -1,0 +1,189 @@
+name: Verificar ejemplos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m py_compile python/consulta.py
+      - run: python python/consulta.py --help
+
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: node --check javascript/consulta.mjs
+      - run: node javascript/consulta.mjs --help
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm install --no-save --no-package-lock typescript@5 @types/node@22
+      - run: npx tsc --noEmit --strict --target es2022 --module nodenext --moduleResolution nodenext --skipLibCheck --types node typescript/consulta.ts
+      - run: node --experimental-strip-types typescript/consulta.ts --help
+
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.3", extensions: curl, json }
+      - run: php -l php/consulta.php
+      - run: php php/consulta.php --help
+
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - run: javac -Xlint:all -d /tmp/java java/EndpointPe.java
+      - run: java java/EndpointPe.java --help
+
+  kotlin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - run: sudo snap install --classic kotlin
+      - run: kotlinc kotlin/EndpointPe.kt -include-runtime -d /tmp/consulta.jar
+      - run: java -jar /tmp/consulta.jar --help
+
+  dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "8.0.x" }
+      - run: dotnet build csharp -c Release -nologo
+      - run: dotnet build vbnet -c Release -nologo
+      - run: dotnet run --project csharp -c Release --no-build -- --help
+      - run: dotnet run --project vbnet -c Release --no-build -- --help
+
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.22" }
+      - run: cd go && go vet ./... && go build -o /tmp/consulta .
+      - run: /tmp/consulta --help
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cd rust && cargo build --release
+      - run: rust/target/release/consulta --help
+
+  ruby:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with: { ruby-version: "3.3" }
+      - run: ruby -wc ruby/consulta.rb
+      - run: ruby ruby/consulta.rb --help
+
+  swift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with: { swift-version: "5.10" }
+      - run: swiftc swift/EndpointPe.swift -o /tmp/consulta
+      - run: /tmp/consulta --help
+
+  dart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart analyze dart/consulta.dart
+      - run: dart run dart/consulta.dart --help
+
+  c-cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+      - run: gcc -std=c99 -Wall -Wextra c/consulta.c -o /tmp/consulta-c -lcurl
+      - run: g++ -std=c++17 -Wall -Wextra cpp/consulta.cpp -o /tmp/consulta-cpp -lcurl
+      - run: /tmp/consulta-c --help && /tmp/consulta-cpp --help
+
+  perl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: perl -c perl/consulta.pl
+      - run: perl perl/consulta.pl --help
+
+  lua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - run: luac5.4 -p lua/consulta.lua
+
+  powershell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: |
+          $errores = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/powershell/consulta.ps1", [ref]$null, [ref]$errores) | Out-Null
+          if ($errores) { $errores | ForEach-Object { Write-Error $_.Message }; exit 1 }
+      - shell: pwsh
+        run: ./powershell/consulta.ps1 --help
+
+  r:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+      - run: Rscript -e 'invisible(parse("r/consulta.R")); cat("sintaxis ok\n")'
+
+  scala:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VirtusLab/scala-cli-setup@v1
+      - run: scala-cli compile scala/EndpointPe.scala
+      - run: scala-cli run scala/EndpointPe.scala -- --help
+
+  elixir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with: { otp-version: "27", elixir-version: "1.17" }
+      - run: elixir elixir/consulta.exs --help
+
+  openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install openapi-spec-validator
+      - run: openapi-spec-validator openapi/endpoint-pe-v1.yaml
+      - run: python -c "import json; json.load(open('postman/endpoint-pe.postman_collection.json')); json.load(open('postman/endpoint-pe.postman_environment.json')); print('postman ok')"

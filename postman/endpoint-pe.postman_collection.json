@@ -1,0 +1,666 @@
+{
+  "info": {
+    "name": "endpoint.pe · API RUC, DNI, tipo de cambio y ubigeo (Perú)",
+    "description": "Colección oficial para probar la API v1 de endpoint.pe.\n\n1. Importa también `endpoint-pe.postman_environment.json` y selecciónalo.\n2. En el entorno, pega tu API key en `api_key` (créala gratis en https://app.endpoint.pe/panel/api-keys).\n3. Ejecuta cualquier petición. La autenticación (Bearer) ya está configurada a nivel de colección.\n\nCada consulta con resultado (HTTP 200) descuenta 1 crédito; 404 y errores no descuentan.\nDocumentación: https://endpoint.pe/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{api_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.endpoint.pe/v1"
+    },
+    {
+      "key": "api_key",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Empresas (SUNAT)",
+      "item": [
+        {
+          "name": "Consulta RUC",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ruc/:ruc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ruc",
+                ":ruc"
+              ],
+              "variable": [
+                {
+                  "key": "ruc",
+                  "value": "{{ruc}}",
+                  "description": "RUC de 11 dígitos"
+                }
+              ]
+            },
+            "description": "Ficha resumida del contribuyente: razón social, estado, condición, domicilio fiscal, padrones y cantidad de trabajadores, locales y representantes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Establecimientos anexos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ruc/:ruc/anexos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ruc",
+                ":ruc",
+                "anexos"
+              ],
+              "variable": [
+                {
+                  "key": "ruc",
+                  "value": "{{ruc}}",
+                  "description": "RUC de 11 dígitos"
+                }
+              ]
+            },
+            "description": "Locales anexos y sucursales registrados del RUC."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Representantes legales",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ruc/:ruc/representantes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ruc",
+                ":ruc",
+                "representantes"
+              ],
+              "variable": [
+                {
+                  "key": "ruc",
+                  "value": "{{ruc}}",
+                  "description": "RUC de 11 dígitos"
+                }
+              ]
+            },
+            "description": "Representantes con documento, cargo y fecha de nombramiento."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Trabajadores por periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ruc/:ruc/trabajadores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ruc",
+                ":ruc",
+                "trabajadores"
+              ],
+              "variable": [
+                {
+                  "key": "ruc",
+                  "value": "{{ruc}}",
+                  "description": "RUC de 11 dígitos"
+                }
+              ]
+            },
+            "description": "Trabajadores, pensionistas y prestadores de servicio declarados, del periodo más reciente al más antiguo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar RUC por razón social",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/empresas?q=superintendencia aduanas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "empresas"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "superintendencia aduanas",
+                  "description": "Nombre o parte del nombre"
+                }
+              ]
+            },
+            "description": "Hasta 20 coincidencias por nombre o razón social (3 a 80 caracteres)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Identidad (RENIEC)",
+      "item": [
+        {
+          "name": "Consulta DNI",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dni/:dni",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dni",
+                ":dni"
+              ],
+              "variable": [
+                {
+                  "key": "dni",
+                  "value": "{{dni}}",
+                  "description": "DNI de 8 dígitos"
+                }
+              ]
+            },
+            "description": "Nombres y apellidos del titular, dígito verificador y RUC de persona natural si lo tiene."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Finanzas y ubicación",
+      "item": [
+        {
+          "name": "Tipo de cambio SUNAT",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tipo-cambio",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tipo-cambio"
+              ]
+            },
+            "description": "Compra y venta del dólar más recientes publicados por SUNAT. Sin parámetros."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Ubigeo por código",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ubigeo/:ubigeo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ubigeo",
+                ":ubigeo"
+              ],
+              "variable": [
+                {
+                  "key": "ubigeo",
+                  "value": "{{ubigeo}}",
+                  "description": "Código de 6 dígitos"
+                }
+              ]
+            },
+            "description": "Departamento, provincia y distrito de un ubigeo INEI de 6 dígitos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Listar departamentos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ubigeo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ubigeo"
+              ]
+            },
+            "description": "Sin parámetros devuelve la lista de departamentos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Listar provincias de un departamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ubigeo?departamento=lima",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ubigeo"
+              ],
+              "query": [
+                {
+                  "key": "departamento",
+                  "value": "lima",
+                  "description": "Nombre del departamento"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Listar distritos de una provincia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ubigeo?departamento=lima&provincia=lima",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ubigeo"
+              ],
+              "query": [
+                {
+                  "key": "departamento",
+                  "value": "lima",
+                  "description": "Nombre del departamento"
+                },
+                {
+                  "key": "provincia",
+                  "value": "lima",
+                  "description": "Nombre de la provincia"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Ubigeo por nombres",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ubigeo?departamento=lima&provincia=lima&distrito=miraflores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ubigeo"
+              ],
+              "query": [
+                {
+                  "key": "departamento",
+                  "value": "lima",
+                  "description": ""
+                },
+                {
+                  "key": "provincia",
+                  "value": "lima",
+                  "description": ""
+                },
+                {
+                  "key": "distrito",
+                  "value": "miraflores",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Con departamento, provincia y distrito devuelve el código completo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Responde JSON con el envoltorio {success, message, data, meta}', () => {",
+                  "    pm.expect(cuerpo).to.have.property('success');",
+                  "    pm.expect(cuerpo).to.have.property('meta');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('Consulta con resultado', () => pm.expect(cuerpo.success).to.be.true);",
+                  "    console.log('Créditos disponibles:', pm.response.headers.get('X-Credits-Remaining'));",
+                  "} else {",
+                  "    console.log('Error', pm.response.code, cuerpo.error, cuerpo.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}

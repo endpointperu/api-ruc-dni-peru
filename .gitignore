@@ -1,0 +1,48 @@
+# Claves y configuración local
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+*.tsbuildinfo
+typescript/dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Java y Kotlin
+*.class
+*.jar
+!**/gradle-wrapper.jar
+
+# .NET
+bin/
+obj/
+
+# Go, Rust, Swift y C
+go/consulta
+rust/target/
+swift/consulta
+swift/.build/
+c/consulta
+cpp/consulta
+*.o
+*.exe
+*.dcu
+*.dll
+*.pdb
+
+# Dart y Elixir
+.dart_tool/
+_build/
+deps/
+
+# Editores y sistema
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

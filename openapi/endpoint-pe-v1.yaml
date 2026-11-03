@@ -1,0 +1,656 @@
+openapi: 3.1.0
+info:
+  title: endpoint.pe · API de consulta RUC, DNI, tipo de cambio y ubigeo del Perú
+  version: "1.0"
+  summary: API REST en JSON para consultar SUNAT, RENIEC, tipo de cambio y ubigeo desde cualquier sistema.
+  description: |
+    Consulta RUC (ficha del contribuyente, establecimientos anexos, representantes legales,
+    trabajadores y búsqueda por razón social), DNI (nombres y apellidos), tipo de cambio del
+    dólar publicado por SUNAT y ubigeo (departamento, provincia y distrito).
+
+    - Autenticación con API key en `Authorization: Bearer ep_live_…` (créala gratis en https://app.endpoint.pe).
+    - Todas las respuestas usan el mismo envoltorio `{success, message, data, meta}`.
+    - Cada consulta con resultado (HTTP 200) descuenta 1 crédito; las respuestas 404 y los errores no descuentan.
+    - Documentación completa, ejemplos y guías: https://endpoint.pe/docs
+  termsOfService: https://endpoint.pe/terms
+  contact:
+    name: endpoint.pe
+    url: https://endpoint.pe/contact
+    email: contacto@endpoint.pe
+externalDocs:
+  description: Documentación de la API
+  url: https://endpoint.pe/docs
+servers:
+  - url: https://api.endpoint.pe/v1
+    description: Producción
+security:
+  - ApiKey: []
+tags:
+  - name: Empresas
+    description: Datos de contribuyentes del padrón de SUNAT.
+  - name: Identidad
+    description: Datos de identidad de personas (RENIEC).
+  - name: Finanzas y ubicación
+    description: Tipo de cambio SUNAT y códigos de ubigeo.
+
+paths:
+  /ruc/{ruc}:
+    get:
+      tags: [Empresas]
+      summary: Consulta RUC
+      description: Ficha resumida del contribuyente según el padrón de SUNAT. Ideal para validar clientes y proveedores antes de facturar.
+      operationId: consultarRuc
+      parameters:
+        - $ref: "#/components/parameters/Ruc"
+      responses:
+        "200":
+          description: Ficha del contribuyente.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Ruc" }
+              example:
+                success: true
+                message: Consulta exitosa
+                data:
+                  ruc: "20131312955"
+                  razon_social: SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACION TRIBUTARIA - SUNAT
+                  nombre_comercial: null
+                  tipo_contribuyente: INSTITUCIONES PUBLICAS
+                  estado: ACTIVO
+                  condicion: HABIDO
+                  fecha_inscripcion: "1993-05-04"
+                  fecha_inicio_actividades: "1988-06-09"
+                  direccion: AV. GARCILASO DE LA VEGA NRO. 1472
+                  direccion_completa: AV. GARCILASO DE LA VEGA NRO. 1472, LIMA - LIMA - LIMA
+                  departamento: LIMA
+                  provincia: LIMA
+                  distrito: LIMA
+                  ubigeo: "150101"
+                  ubigeo_reniec: "140101"
+                  es_agente_de_retencion: true
+                  es_agente_de_percepcion: false
+                  es_agente_de_percepcion_combustible: false
+                  es_buen_contribuyente: false
+                  cantidad_trabajadores: 12577
+                  cantidad_establecimientos: 349
+                  cantidad_representantes: 6
+                meta:
+                  fuente: SUNAT
+                  consultado_en: "2026-10-12T07:40:12Z"
+                  creditos_cobrados: 1
+                  creditos_disponibles: 14621
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /ruc/{ruc}/anexos:
+    get:
+      tags: [Empresas]
+      summary: Establecimientos anexos
+      description: Locales anexos y sucursales registrados de un RUC. Un RUC inscrito sin anexos responde 200 con la lista vacía.
+      operationId: consultarAnexos
+      parameters:
+        - $ref: "#/components/parameters/Ruc"
+      responses:
+        "200":
+          description: Lista de establecimientos.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Anexos" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /ruc/{ruc}/representantes:
+    get:
+      tags: [Empresas]
+      summary: Representantes legales
+      description: Representantes legales de la empresa con tipo y número de documento, cargo y fecha de nombramiento según SUNAT.
+      operationId: consultarRepresentantes
+      parameters:
+        - $ref: "#/components/parameters/Ruc"
+      responses:
+        "200":
+          description: Lista de representantes.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Representantes" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /ruc/{ruc}/trabajadores:
+    get:
+      tags: [Empresas]
+      summary: Trabajadores por periodo
+      description: Cantidad de trabajadores, pensionistas y prestadores de servicio declarados a SUNAT, del periodo más reciente al más antiguo.
+      operationId: consultarTrabajadores
+      parameters:
+        - $ref: "#/components/parameters/Ruc"
+      responses:
+        "200":
+          description: Periodos declarados.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Trabajadores" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /empresas:
+    get:
+      tags: [Empresas]
+      summary: Buscar RUC por razón social
+      description: Encuentra el RUC de una empresa a partir de su nombre o razón social. Devuelve hasta 20 coincidencias; las palabras de menos de 3 letras se ignoran.
+      operationId: buscarEmpresas
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: "Nombre o parte del nombre de la empresa (3 a 80 caracteres)."
+          schema: { type: string, minLength: 3, maxLength: 80 }
+          example: superintendencia aduanas
+      responses:
+        "200":
+          description: Coincidencias encontradas.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Empresas" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /dni/{dni}:
+    get:
+      tags: [Identidad]
+      summary: Consulta DNI
+      description: Nombres y apellidos del titular de un DNI, su dígito verificador y el RUC de persona natural si está inscrito en SUNAT. No devuelve domicilio ni fecha de nacimiento.
+      operationId: consultarDni
+      parameters:
+        - name: dni
+          in: path
+          required: true
+          description: DNI de 8 dígitos, con ceros a la izquierda si corresponde.
+          schema: { type: string, pattern: "^[0-9]{8}$" }
+          example: "45871236"
+      responses:
+        "200":
+          description: Identidad del titular.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Dni" }
+              example:
+                success: true
+                message: Consulta exitosa
+                data:
+                  dni: "45871236"
+                  digito_verificador: "6"
+                  nombres: MARÍA ELENA
+                  apellido_paterno: QUISPE
+                  apellido_materno: HUAMÁN
+                  nombre_completo: MARÍA ELENA QUISPE HUAMÁN
+                  ruc: "10458712366"
+                meta:
+                  fuente: RENIEC
+                  consultado_en: "2026-10-12T07:40:12Z"
+                  creditos_cobrados: 1
+                  creditos_disponibles: 14621
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /tipo-cambio:
+    get:
+      tags: [Finanzas y ubicación]
+      summary: Tipo de cambio SUNAT
+      description: Tipo de cambio de compra y venta del dólar más reciente publicado por SUNAT. No recibe parámetros; `fecha` es hoy (hora de Lima) o, si SUNAT aún no publicó el día, la última fecha publicada.
+      operationId: tipoCambio
+      responses:
+        "200":
+          description: Valor vigente.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/TipoCambio" }
+              example:
+                success: true
+                message: Consulta exitosa
+                data: { fecha: "2026-10-12", moneda: USD, compra: 3.45, venta: 3.457, fuente: SUNAT }
+                meta: { fuente: SUNAT, consultado_en: "2026-10-12T07:40:12Z", creditos_cobrados: 1, creditos_disponibles: 14621 }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "502": { $ref: "#/components/responses/ErrorFuente" }
+
+  /ubigeo/{ubigeo}:
+    get:
+      tags: [Finanzas y ubicación]
+      summary: Ubigeo por código
+      description: Departamento, provincia y distrito de un código de ubigeo INEI de 6 dígitos, con su equivalente RENIEC.
+      operationId: consultarUbigeo
+      parameters:
+        - name: ubigeo
+          in: path
+          required: true
+          description: Código de ubigeo INEI de 6 dígitos.
+          schema: { type: string, pattern: "^[0-9]{6}$" }
+          example: "150101"
+      responses:
+        "200":
+          description: Ubicación.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Ubigeo" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+
+  /ubigeo:
+    get:
+      tags: [Finanzas y ubicación]
+      summary: Ubigeo por nombres y listas por nivel
+      description: |
+        Sin parámetros lista los departamentos; con `departamento`, sus provincias; con `departamento` y
+        `provincia`, sus distritos; con los tres, devuelve el mismo objeto que la consulta por código.
+        Los nombres no necesitan tildes ni mayúsculas. Cada llamada cuesta 1 crédito.
+      operationId: ubigeoPorNombres
+      parameters:
+        - { name: departamento, in: query, required: false, schema: { type: string, maxLength: 80 }, example: lima }
+        - { name: provincia, in: query, required: false, schema: { type: string, maxLength: 80 }, example: lima }
+        - { name: distrito, in: query, required: false, schema: { type: string, maxLength: 80 }, example: miraflores }
+      responses:
+        "200":
+          description: Lista del nivel pedido, o la ubicación completa.
+          headers:
+            X-Credits-Charged: { $ref: "#/components/headers/X-Credits-Charged" }
+            X-Credits-Remaining: { $ref: "#/components/headers/X-Credits-Remaining" }
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Exito"
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - $ref: "#/components/schemas/UbigeoNivel"
+                          - $ref: "#/components/schemas/Ubigeo"
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "402": { $ref: "#/components/responses/SinCreditos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+
+  /ce/{numero}:
+    get:
+      tags: [Identidad]
+      summary: Carnet de extranjería (próximamente)
+      description: Nombres y apellidos del titular de un carnet de extranjería. La fuente aún no está conectada; mientras tanto responde 501 sin descontar créditos.
+      operationId: consultarCarnetExtranjeria
+      parameters:
+        - name: numero
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[A-Za-z0-9]{9,12}$" }
+          example: "001234567"
+      responses:
+        "501": { $ref: "#/components/responses/NoDisponible" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "422": { $ref: "#/components/responses/Validacion" }
+
+components:
+  securitySchemes:
+    ApiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: "ep_live_ seguido de 40 caracteres alfanuméricos"
+      description: "API key creada en https://app.endpoint.pe/panel/api-keys. Envíala en la cabecera `Authorization: Bearer ep_live_…`."
+
+  parameters:
+    Ruc:
+      name: ruc
+      in: path
+      required: true
+      description: RUC de 11 dígitos. Empieza en 10, 15, 16, 17 o 20 y el último dígito es el verificador (módulo 11).
+      schema: { type: string, pattern: "^(10|15|16|17|20)[0-9]{9}$" }
+      example: "20131312955"
+
+  headers:
+    X-Credits-Charged:
+      description: Créditos descontados por esta respuesta (1 con resultado, 0 en los demás casos).
+      schema: { type: integer }
+    X-Credits-Remaining:
+      description: Créditos que quedan sumando suscripción y prepago.
+      schema: { type: integer }
+
+  responses:
+    NoAutenticado:
+      description: Falta la API key, no usa el esquema Bearer o no es válida (`token_invalido`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { success: false, message: "La API key no es válida.", error: token_invalido, data: null, meta: { consultado_en: "2026-10-12T08:41:49Z" } }
+    SinCreditos:
+      description: No queda saldo en ninguna bolsa (`sin_creditos`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { success: false, message: "No tienes créditos disponibles. Compra un paquete o mejora tu plan.", error: sin_creditos, data: null, meta: { consultado_en: "2026-10-12T08:41:49Z" } }
+    Prohibido:
+      description: La API key está inactiva o revocada (`token_inactivo`) o la cuenta está suspendida (`cuenta_suspendida`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NoEncontrado:
+      description: El dato no existe en la fuente (`no_encontrado`). No descuenta créditos.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { success: false, message: "No se encontró información para la consulta.", error: no_encontrado, data: null, meta: { consultado_en: "2026-10-12T08:41:49Z" } }
+    Validacion:
+      description: El dato enviado no tiene el formato esperado (`validacion`); `detalles` indica el campo y el motivo.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            success: false
+            message: Revisa los datos enviados.
+            error: validacion
+            data: null
+            detalles: { ruc: "RUC inválido: deben ser 11 dígitos con dígito verificador correcto." }
+            meta: { consultado_en: "2026-10-12T08:41:49Z" }
+    NoDisponible:
+      description: La fuente de esta API aún no está conectada (`no_disponible`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ErrorFuente:
+      description: La fuente no respondió correctamente (`error_fuente`). Puedes reintentar.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Meta:
+      type: object
+      description: Información sobre la consulta.
+      properties:
+        fuente: { type: string, description: "Entidad de la que proviene el dato: SUNAT, RENIEC o INEI.", examples: [SUNAT] }
+        consultado_en: { type: string, format: date-time, description: "Fecha y hora UTC de la consulta." }
+        creditos_cobrados: { type: integer, description: "Créditos descontados por esta respuesta." }
+        creditos_disponibles: { type: integer, description: "Créditos que quedan (suscripción + prepago)." }
+      required: [consultado_en]
+
+    Exito:
+      type: object
+      description: Envoltorio de toda respuesta con resultado.
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string, examples: [Consulta exitosa] }
+        data: { type: object }
+        meta: { $ref: "#/components/schemas/Meta" }
+      required: [success, message, data, meta]
+
+    Error:
+      type: object
+      description: Envoltorio de toda respuesta con error. `error` es un código estable para tu programa; `message` es texto en español para mostrar.
+      properties:
+        success: { type: boolean, const: false }
+        message: { type: string }
+        error:
+          type: string
+          enum: [token_invalido, token_inactivo, cuenta_suspendida, sin_creditos, no_encontrado, validacion, no_disponible, error_fuente, demasiadas_peticiones]
+        data: { type: "null" }
+        detalles:
+          type: object
+          description: Solo en errores de validación (422). Campo → motivo.
+          additionalProperties: { type: string }
+        meta: { $ref: "#/components/schemas/Meta" }
+      required: [success, message, error, data, meta]
+
+    Ruc:
+      type: object
+      description: Ficha resumida del contribuyente. `null` significa que la fuente no tiene ese dato (frecuente en personas naturales sin ficha completa).
+      properties:
+        ruc: { type: string, examples: ["20131312955"] }
+        razon_social: { type: string }
+        nombre_comercial: { type: [string, "null"] }
+        tipo_contribuyente: { type: [string, "null"], examples: [SOCIEDAD ANONIMA CERRADA] }
+        estado: { type: string, description: "ACTIVO, BAJA DEFINITIVA, BAJA PROVISIONAL, SUSPENSION TEMPORAL…", examples: [ACTIVO] }
+        condicion: { type: string, description: "HABIDO o NO HABIDO.", examples: [HABIDO] }
+        fecha_inscripcion: { type: [string, "null"], format: date }
+        fecha_inicio_actividades: { type: [string, "null"], format: date }
+        direccion: { type: [string, "null"] }
+        direccion_completa: { type: [string, "null"], description: "Dirección seguida de departamento, provincia y distrito." }
+        departamento: { type: [string, "null"] }
+        provincia: { type: [string, "null"] }
+        distrito: { type: [string, "null"] }
+        ubigeo: { type: [string, "null"], description: "Código INEI que usa SUNAT." }
+        ubigeo_reniec: { type: [string, "null"] }
+        es_agente_de_retencion: { type: [boolean, "null"] }
+        es_agente_de_percepcion: { type: [boolean, "null"] }
+        es_agente_de_percepcion_combustible: { type: [boolean, "null"] }
+        es_buen_contribuyente: { type: [boolean, "null"] }
+        cantidad_trabajadores: { type: [integer, "null"], description: "Trabajadores del último periodo declarado." }
+        cantidad_establecimientos: { type: integer }
+        cantidad_representantes: { type: integer }
+      required: [ruc, razon_social, estado, condicion]
+
+    Dni:
+      type: object
+      properties:
+        dni: { type: string, examples: ["45871236"] }
+        digito_verificador: { type: string, examples: ["6"] }
+        nombres: { type: string }
+        apellido_paterno: { type: string }
+        apellido_materno: { type: string }
+        nombre_completo: { type: string }
+        ruc: { type: [string, "null"], description: "RUC de persona natural (10 + DNI + dígito) si está inscrito en SUNAT." }
+      required: [dni, digito_verificador, nombres, apellido_paterno, apellido_materno, nombre_completo, ruc]
+
+    TipoCambio:
+      type: object
+      properties:
+        fecha: { type: string, format: date, description: "Fecha a la que corresponde el valor." }
+        moneda: { type: string, const: USD }
+        compra: { type: number, examples: [3.45] }
+        venta: { type: number, examples: [3.457] }
+        fuente: { type: string, const: SUNAT }
+      required: [fecha, moneda, compra, venta, fuente]
+
+    Ubigeo:
+      type: object
+      properties:
+        ubigeo: { type: string, examples: ["150101"] }
+        ubigeo_reniec: { type: [string, "null"], examples: ["140101"] }
+        departamento: { type: string, examples: [LIMA] }
+        provincia: { type: string, examples: [LIMA] }
+        distrito: { type: string, examples: [LIMA] }
+        codigos:
+          type: object
+          properties:
+            departamento: { type: string, examples: ["15"] }
+            provincia: { type: string, examples: ["1501"] }
+            distrito: { type: string, examples: ["150101"] }
+        vigente: { type: boolean, description: "false si el código ya no está en uso." }
+      required: [ubigeo, departamento, provincia, distrito, codigos, vigente]
+
+    UbigeoNivel:
+      type: object
+      description: Lista de un nivel (departamentos, provincias o distritos) para armar formularios.
+      properties:
+        nivel: { type: string, enum: [departamentos, provincias, distritos] }
+        departamentos:
+          type: array
+          items: { type: object, properties: { codigo: { type: string }, nombre: { type: string } } }
+        provincias:
+          type: array
+          items: { type: object, properties: { codigo: { type: string }, nombre: { type: string } } }
+        distritos:
+          type: array
+          items: { type: object, properties: { ubigeo: { type: string }, ubigeo_reniec: { type: [string, "null"] }, nombre: { type: string } } }
+      required: [nivel]
+
+    Empresas:
+      type: object
+      properties:
+        consulta: { type: string }
+        modo: { type: string, enum: [texto, prefijo], description: "texto (por palabras) o prefijo (por inicio del nombre)." }
+        cantidad: { type: integer, maximum: 20 }
+        resultados:
+          type: array
+          items:
+            type: object
+            properties:
+              ruc: { type: string }
+              razon_social: { type: string }
+              estado: { type: string }
+              condicion: { type: string }
+              ubigeo: { type: [string, "null"] }
+            required: [ruc, razon_social, estado, condicion]
+      required: [consulta, modo, cantidad, resultados]
+
+    Anexos:
+      type: object
+      properties:
+        ruc: { type: string }
+        razon_social: { type: string }
+        cantidad: { type: integer }
+        establecimientos:
+          type: array
+          items:
+            type: object
+            properties:
+              codigo: { type: string, examples: ["0002"] }
+              tipo: { type: string, examples: [SUCURSAL] }
+              tipo_codigo: { type: string, examples: [SU] }
+              direccion: { type: string }
+              actividad_economica: { type: [string, "null"] }
+      required: [ruc, razon_social, cantidad, establecimientos]
+
+    Representantes:
+      type: object
+      properties:
+        ruc: { type: string }
+        razon_social: { type: string }
+        cantidad: { type: integer }
+        representantes:
+          type: array
+          items:
+            type: object
+            properties:
+              tipo_documento: { type: string, examples: [DNI] }
+              numero_documento: { type: string }
+              nombre: { type: string }
+              cargo: { type: string, examples: [GERENTE GENERAL] }
+              desde: { type: [string, "null"], format: date, description: "Fecha de nombramiento." }
+      required: [ruc, razon_social, cantidad, representantes]
+
+    Periodo:
+      type: object
+      properties:
+        periodo: { type: string, description: "AAAA-MM", examples: ["2026-07"] }
+        trabajadores: { type: integer }
+        pensionistas: { type: integer }
+        prestadores_servicio: { type: integer }
+      required: [periodo, trabajadores, pensionistas, prestadores_servicio]
+
+    Trabajadores:
+      type: object
+      properties:
+        ruc: { type: string }
+        razon_social: { type: string }
+        ultimo_periodo:
+          oneOf:
+            - $ref: "#/components/schemas/Periodo"
+            - type: "null"
+        cantidad_periodos: { type: integer }
+        periodos:
+          type: array
+          description: Del más reciente al más antiguo.
+          items: { $ref: "#/components/schemas/Periodo" }
+      required: [ruc, razon_social, ultimo_periodo, cantidad_periodos, periodos]
