@@ -17,7 +17,6 @@
 [![Lenguajes](https://img.shields.io/badge/lenguajes-26-0f172a?style=for-the-badge)](#ejemplos-por-lenguaje)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-0f172a?style=for-the-badge)](LICENSE)
 
-[![Verificar ejemplos](https://github.com/endpointperu/api-ruc-dni-peru/actions/workflows/verificar.yml/badge.svg)](https://github.com/endpointperu/api-ruc-dni-peru/actions/workflows/verificar.yml)
 
 </div>
 
@@ -166,7 +165,7 @@ Todos los ejemplos siguen el mismo contrato, así puedes pasar de un lenguaje a 
 - Manejan la respuesta completa: `success`, `data`, `error`, `message` y `detalles`, con el código HTTP.
 - Tienen **timeout** y **reintentos** solo ante errores de red o 5xx (nunca ante 404 o 422).
 - **Sin dependencias** cuando el lenguaje lo permite. Cada carpeta tiene su `README.md` con requisitos, instalación y cómo integrarlo en tu proyecto (Laravel, Django, Spring, Rails, Next.js, Flutter…).
-- Probados contra `https://api.endpoint.pe` y verificados en cada cambio por [GitHub Actions](.github/workflows/verificar.yml).
+- Probados contra `https://api.endpoint.pe`.
 
 | Lenguaje | Carpeta | Requisitos | Ejecutar |
 |---|---|---|---|
