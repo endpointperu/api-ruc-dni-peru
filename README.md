@@ -25,7 +25,7 @@ Una sola API REST en JSON para **consultar RUC** (ficha SUNAT, anexos, represent
 ## Contenido
 
 - [¿Qué puedes consultar?](#qué-puedes-consultar)
-- [Empieza en 3 pasos](#empieza-en-4-pasos)
+- [Empieza en 4 pasos](#empieza-en-4-pasos)
 - [Cómo responde la API](#cómo-responde-la-api)
 - [Ejemplos por lenguaje](#ejemplos-por-lenguaje)
 - [Sin programar: Excel, Google Sheets, Postman y OpenAPI](#sin-programar-excel-google-sheets-postman-y-openapi)
