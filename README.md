@@ -25,7 +25,7 @@ Una sola API REST en JSON para **consultar RUC** (ficha SUNAT, anexos, represent
 ## Contenido
 
 - [¿Qué puedes consultar?](#qué-puedes-consultar)
-- [Empieza en 3 pasos](#empieza-en-3-pasos)
+- [Empieza en 3 pasos](#empieza-en-4-pasos)
 - [Cómo responde la API](#cómo-responde-la-api)
 - [Ejemplos por lenguaje](#ejemplos-por-lenguaje)
 - [Sin programar: Excel, Google Sheets, Postman y OpenAPI](#sin-programar-excel-google-sheets-postman-y-openapi)
@@ -53,11 +53,12 @@ Una sola API REST en JSON para **consultar RUC** (ficha SUNAT, anexos, represent
 
 El padrón de SUNAT se actualiza todos los días. Todas las consultas cuestan lo mismo: **1 crédito** cuando hay resultado, **0** cuando no lo hay.
 
-## Empieza en 3 pasos
+## Empieza en 4 pasos
 
 1. **Crea tu cuenta gratis** en [app.endpoint.pe/registro](https://app.endpoint.pe/registro). Incluye 150 consultas al mes que se renuevan solas, sin tarjeta.
-2. **Genera una API key** en [API keys](https://app.endpoint.pe/panel/api-keys). Tiene la forma `ep_live_` + 40 caracteres y se muestra una sola vez.
-3. **Haz tus primeras consultas** (reemplaza `ep_live_...` por tu clave).
+2. **Activa tu cuenta** con el enlace que llega a tu correo (revisa la carpeta de spam si no lo ves). Hasta entonces no se puede iniciar sesión.
+3. **Genera una API key** en [API keys](https://app.endpoint.pe/panel/api-keys). Tiene la forma `ep_live_` + 40 caracteres y se muestra una sola vez. El plan Gratis permite 2 claves activas; los planes de pago, 10.
+4. **Haz tus primeras consultas** (reemplaza `ep_live_...` por tu clave).
 
 ### Consulta RUC
 
